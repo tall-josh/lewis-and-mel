@@ -102,7 +102,6 @@ def find_verse(query):
 
 ################################################################################
 
-#css = fh.Style(':root { --pico-font-size: 100%; --pico-font-family: Pacifico, cursive;}')
 css = fh.Style(':root { --pico-font-size: 100%;}')
 app = fh.FastHTML(hdrs=(fh.picolink, css))
 rt = app.route
@@ -126,10 +125,6 @@ def get():
 
     leader = fh.P(fh.I("The verse goes something like ..."))
     new_inp = fh.Input(id="new-search", name="search", placeholder="God created all the stuff")
-    #search = fh.Form(fh.Group(new_inp, fh.Button("Search")),
-    #           hx_post="/", target_id='verse-list', hx_swap="innerHTML")
-
-        # Update hx_trigger to submit only on enter key press
     search = fh.Form(
         leader,
         fh.Group(
@@ -137,7 +132,7 @@ def get():
         hx_post="/",
         target_id='verse-list',
         hx_swap="innerHTML",
-        hx_trigger="keyup changed delay:500ms from:#new-search"  # Trigger on keyup or input change, but delay the submission by 500ms
+        hx_trigger="click",
     )
     frm = fh.Form(render_response(None), id="verse-list",
                cls='sortable', hx_trigger="end")
