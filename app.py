@@ -5,8 +5,12 @@ import os
 
 from openai.types.chat import ChatCompletion
 
+from logger import get_logger
+
 # Replace with your OpenAI API key
 client = OpenAI(api_key=os.environ["OPENAI_TOKEN"])
+
+LOGGER = get_logger()
 
 
 MODEL="gpt-4o"
@@ -98,17 +102,19 @@ def find_verse(query):
 
 ################################################################################
 
-css = fh.Style(':root { --pico-font-size: 100%; --pico-font-family: Pacifico, cursive;}')
+#css = fh.Style(':root { --pico-font-size: 100%; --pico-font-family: Pacifico, cursive;}')
+css = fh.Style(':root { --pico-font-size: 100%;}')
 app = fh.FastHTML(hdrs=(fh.picolink, css))
 rt = app.route
 
 @rt("/")
 async def post(search:str):
-    global global_response
     if not search:
         return None
 
+    LOGGER.info(f"search={search}")
     response = find_verse(search)
+    LOGGER.info(f"response={response}")
     new_response = render_response(response)
     return new_response
 
@@ -118,10 +124,21 @@ def get():
     title = "What's that verse"
     top = fh.Grid(fh.H1(title), style='text-align: center')
 
-    new_inp = fh.Input(id="new-search", name="search", placeholder="Something about God creating everything")
-    search = fh.Form(fh.Group(new_inp, fh.Button("Search")),
-               hx_post="/", target_id='verse-list', hx_swap="innerHTML")
-    print(f"###search: {search}")
+    leader = fh.P(fh.I("The verse goes something like ..."))
+    new_inp = fh.Input(id="new-search", name="search", placeholder="God created all the stuff")
+    #search = fh.Form(fh.Group(new_inp, fh.Button("Search")),
+    #           hx_post="/", target_id='verse-list', hx_swap="innerHTML")
+
+        # Update hx_trigger to submit only on enter key press
+    search = fh.Form(
+        leader,
+        fh.Group(
+            new_inp, fh.Button("Search")),
+        hx_post="/",
+        target_id='verse-list',
+        hx_swap="innerHTML",
+        hx_trigger="keyup changed delay:500ms from:#new-search"  # Trigger on keyup or input change, but delay the submission by 500ms
+    )
     frm = fh.Form(render_response(None), id="verse-list",
                cls='sortable', hx_trigger="end")
     card = fh.Card(frm, header=search, footer=fh.Div(id='current-todo'))
