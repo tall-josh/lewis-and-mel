@@ -24,7 +24,7 @@ async def render_response(verse_dict: Dict[str, str]):
     for ref, verse in verse_dict.items():
         link = ref_links[ref]
         if ref is not None:
-            list_items.append(fh.Li(fh.A(ref, href=link), verse))
+            list_items.append(fh.Li(fh.A(ref, href=link), f"\t{verse}"))
     return fh.Ol(*list_items)
 
 
