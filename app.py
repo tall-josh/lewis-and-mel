@@ -1,5 +1,4 @@
 from typing import Dict
-import requests
 from fasthtml import common as fh
 import os
 import aiohttp
@@ -32,7 +31,7 @@ async def render_response(verse_dict: Dict[str, str]):
 async def find_verse(query):
     # Perform the curl request
     MEL_API_TOKEN = os.environ["MEL_API_TOKEN"]
-    MEL_ENDPOINT = os.environ.get("MEL_ENDPOINT","http://127.0.0.1:8000/ask-mel")
+    MEL_ENDPOINT = os.environ.get("MEL_ENDPOINT","http://127.0.0.1:8000/ask-mel-mock")
     headers = {
         "api_key": MEL_API_TOKEN
     }
@@ -40,8 +39,6 @@ async def find_verse(query):
         "query": query
     }
     
-    #response = requests.get(MEL_ENDPOINT, headers=headers, params=params)
-
     async with aiohttp.ClientSession() as session:
         async with session.get(MEL_ENDPOINT, headers=headers, params=params) as response:
             #print(f"GET {url} Status: {response.status}")
@@ -84,7 +81,8 @@ async def get():
         hx_swap="innerHTML",
         hx_trigger="click",
     )
-    frm = fh.Form(render_response(None), id="verse-list",
+    response = await render_response(None)
+    frm = fh.Form(response, id="verse-list",
                cls='sortable', hx_trigger="end")
     card = fh.Card(frm, header=search, footer=fh.Div(id='current-todo'))
     return fh.Title(title), fh.Container(top, card)
